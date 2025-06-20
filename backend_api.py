@@ -12,6 +12,7 @@ import json
 import pathlib
 from api_transcript_listing import router as transcript_listing_router
 from api_llm_generate import router as llm_generate_router
+from api_narrate_script import router as narrate_script_router
 
 app = FastAPI()
 
@@ -37,6 +38,7 @@ app.add_middleware(
 
 app.include_router(transcript_listing_router)
 app.include_router(llm_generate_router)
+app.include_router(narrate_script_router)
 
 class TranscriptResponse(BaseModel):
     video_id: str

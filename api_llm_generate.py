@@ -63,9 +63,11 @@ The topic of the podcast is: "{req.topic}".
 
 Alternate their dialogue naturally, making sure each host's personality and style comes through. The conversation should be about {req.length_minutes} minutes long (roughly 1500-2000 words). Use humor, depth, and storytelling as appropriate. Start with a brief introduction, then dive into the topic, and end with a natural outro.
 
+**Important:** For each line of dialogue, add a short expression or action in square brackets that describes how the host is speaking, reacting, or gesturing (e.g., [laughs], [smiling], [thoughtful pause], [raises eyebrow], [enthusiastic], [shrugs], etc.). These expressions should help bring the conversation to life and can be placed before or after the spoken line.
+
 Format:
-{req.char1}: ...
-{req.char2}: ...
+{req.char1}: [expression] ...
+{req.char2}: [expression] ...
 (repeat)
 """
 
