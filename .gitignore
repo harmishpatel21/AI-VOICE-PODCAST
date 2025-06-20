@@ -1,5 +1,5 @@
 venv
-__pychache__
+__pycache__
 *.pyc
 *.pyo
 *.pyd
@@ -8,3 +8,7 @@ __pychache__
 *.log
 *.env
 *.DS_Store
+
+transcripts
+
+
