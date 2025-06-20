@@ -1,6 +1,9 @@
 import streamlit as st
 import requests
 import re
+import os
+import pathlib
+import json
 
 API_BASE = "http://localhost:8000/api"
 
@@ -8,7 +11,7 @@ st.title("YouTube Podcast Transcript Studio")
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Extract Transcript", "Create Podcast Script"])
+page = st.sidebar.radio("Go to", ["Extract Transcript", "Create Podcast Script", "Listen to Saved Podcast"])
 
 # --- Extract Transcript Page ---
 if page == "Extract Transcript":
@@ -73,8 +76,68 @@ if page == "Create Podcast Script":
                 resp = requests.post(f"{API_BASE}/generate_podcast_script", json=payload)
                 if resp.status_code == 200 and resp.json().get("script"):
                     st.subheader("Generated Podcast Script")
-                    st.text_area("Script", resp.json()["script"], height=600)
+                    script = resp.json()["script"]
+                    st.text_area("Script", script, height=600)
                     with st.expander("Show LLM Prompt"):
                         st.code(resp.json().get("prompt", ""))
+                    # Narration section
+                    st.markdown("---")
+                    st.subheader("Narrate & Play Podcast Audio")
+                    if st.button("Narrate Podcast Audio"):
+                        with st.spinner("Synthesizing podcast audio with ElevenLabs..."):
+                            narrate_payload = {
+                                "script": script,
+                                "char1": char1,
+                                "char2": char2
+                            }
+                            narrate_resp = requests.post(f"{API_BASE}/narrate_script", json=narrate_payload)
+                            if narrate_resp.status_code == 200 and narrate_resp.json().get("audio_path"):
+                                audio_path = narrate_resp.json()["audio_path"]
+                                st.success("Podcast audio generated!")
+                                st.audio(audio_path)
+                            else:
+                                st.error(f"Failed to generate audio: {narrate_resp.text}")
                 else:
                     st.error(f"Failed to generate script: {resp.text}")
+
+# --- Listen to Saved Podcast Page ---
+if page == "Listen to Saved Podcast":
+    st.header("Listen to Saved Podcast Audio or Narrate Again")
+    base_dir = pathlib.Path("saved_scripts")
+    if not base_dir.exists():
+        st.info("No saved podcast scripts found.")
+    else:
+        topics = [d.name for d in base_dir.iterdir() if d.is_dir()]
+        if not topics:
+            st.info("No topics found.")
+        else:
+            selected_topic = st.selectbox("Select a topic", topics)
+            topic_dir = base_dir / selected_topic
+            script_files = sorted([f for f in topic_dir.glob("*.json")], key=os.path.getmtime, reverse=True)
+            if not script_files:
+                st.info("No scripts found for this topic.")
+            else:
+                selected_script = st.selectbox("Select a podcast script", [f.name for f in script_files])
+                if selected_script:
+                    script_path = topic_dir / selected_script
+                    with open(script_path, 'r', encoding='utf-8') as f:
+                        script_data = json.load(f)
+                    st.markdown(f"**Characters:** {script_data['char1']} & {script_data['char2']}")
+                    st.markdown(f"**Topic:** {script_data['topic']}")
+                    st.markdown(f"**Generated at:** {script_data['timestamp']}")
+                    st.text_area("Script", script_data.get("script", ""), height=400)
+                    if st.button("Narrate & Play This Script"):
+                        with st.spinner("Synthesizing podcast audio with ElevenLabs..."):
+                            narrate_payload = {
+                                "script": script_data.get("script", ""),
+                                "char1": script_data.get("char1", ""),
+                                "char2": script_data.get("char2", ""),
+                                "topic": script_data.get("topic", ""),
+                            }
+                            narrate_resp = requests.post(f"{API_BASE}/narrate_script", json=narrate_payload)
+                            if narrate_resp.status_code == 200 and narrate_resp.json().get("audio_path"):
+                                audio_path = narrate_resp.json()["audio_path"]
+                                st.success("Podcast audio generated!")
+                                st.audio(audio_path)
+                            else:
+                                st.error(f"Failed to generate audio: {narrate_resp.text}")
