@@ -60,5 +60,21 @@ if page == "Create Podcast Script":
         with col2:
             char2 = st.selectbox("Select Character 2", [y for y in youtubers if y != st.session_state.get('char1')], key="char2")
         topic = st.text_input("Podcast Topic", "comedy")
+        length = st.slider("Podcast Length (minutes)", min_value=5, max_value=30, value=10)
         if st.button("Generate Podcast Script"):
-            st.info("Podcast script generation coming soon! (LLM integration)")
+            with st.spinner("Generating podcast script using LLM..."):
+                payload = {
+                    "char1": char1,
+                    "char2": char2,
+                    "topic": topic,
+                    "length_minutes": length,
+                    "model": "mistral"
+                }
+                resp = requests.post(f"{API_BASE}/generate_podcast_script", json=payload)
+                if resp.status_code == 200 and resp.json().get("script"):
+                    st.subheader("Generated Podcast Script")
+                    st.text_area("Script", resp.json()["script"], height=600)
+                    with st.expander("Show LLM Prompt"):
+                        st.code(resp.json().get("prompt", ""))
+                else:
+                    st.error(f"Failed to generate script: {resp.text}")
