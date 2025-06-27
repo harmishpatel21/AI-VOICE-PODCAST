@@ -83,14 +83,19 @@ if page == "Create Podcast Script":
                     # Narration section
                     st.markdown("---")
                     st.subheader("Narrate & Play Podcast Audio")
+                    tts_option = st.radio("Select TTS Engine", ["ElevenLabs", "Bark"], horizontal=True)
                     if st.button("Narrate Podcast Audio"):
-                        with st.spinner("Synthesizing podcast audio with ElevenLabs..."):
+                        with st.spinner("Synthesizing podcast audio..."):
                             narrate_payload = {
                                 "script": script,
                                 "char1": char1,
-                                "char2": char2
+                                "char2": char2,
+                                "topic": topic
                             }
-                            narrate_resp = requests.post(f"{API_BASE}/narrate_script", json=narrate_payload)
+                            if tts_option == "ElevenLabs":
+                                narrate_resp = requests.post(f"{API_BASE}/narrate_script", json=narrate_payload)
+                            else:
+                                narrate_resp = requests.post(f"{API_BASE}/narrate_script_bark", json=narrate_payload)
                             if narrate_resp.status_code == 200 and narrate_resp.json().get("audio_path"):
                                 audio_path = narrate_resp.json()["audio_path"]
                                 st.success("Podcast audio generated!")
@@ -126,15 +131,20 @@ if page == "Listen to Saved Podcast":
                     st.markdown(f"**Topic:** {script_data['topic']}")
                     st.markdown(f"**Generated at:** {script_data['timestamp']}")
                     st.text_area("Script", script_data.get("script", ""), height=400)
+                    tts_option = st.radio("Select TTS Engine", ["ElevenLabs", "Bark"], horizontal=True, key=f"tts_option_{selected_script}")
                     if st.button("Narrate & Play This Script"):
-                        with st.spinner("Synthesizing podcast audio with ElevenLabs..."):
+                        with st.spinner("Synthesizing podcast audio..."):
                             narrate_payload = {
+                                "topic": script_data.get("topic", ""),
                                 "script": script_data.get("script", ""),
                                 "char1": script_data.get("char1", ""),
                                 "char2": script_data.get("char2", ""),
                                 "topic": script_data.get("topic", ""),
                             }
-                            narrate_resp = requests.post(f"{API_BASE}/narrate_script", json=narrate_payload)
+                            if tts_option == "ElevenLabs":
+                                narrate_resp = requests.post(f"{API_BASE}/narrate_script", json=narrate_payload)
+                            else:
+                                narrate_resp = requests.post(f"{API_BASE}/narrate_script_bark", json=narrate_payload)
                             if narrate_resp.status_code == 200 and narrate_resp.json().get("audio_path"):
                                 audio_path = narrate_resp.json()["audio_path"]
                                 st.success("Podcast audio generated!")
