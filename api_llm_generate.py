@@ -16,7 +16,7 @@ class PodcastScriptRequest(BaseModel):
     char2: str
     topic: str
     length_minutes: int = 10
-    model: str = "mistral"
+    model: str = "gemma3:4b"
     sample_lines: int = 3
 
 logger = logging.getLogger("llm_generate_api")
@@ -27,6 +27,8 @@ def sanitize_filename(filename):
 
 @router.post("/api/generate_podcast_script")
 def generate_podcast_script(req: PodcastScriptRequest):
+    # Force model to gemma3:4b regardless of what client sends
+    req.model = "gemma3:4b"
     logger.info(f"Received request: char1={req.char1}, char2={req.char2}, topic={req.topic}, model={req.model}, length={req.length_minutes}")
     # Load transcript samples for each character
     def get_samples(youtuber, n):
