@@ -8,9 +8,15 @@ __pycache__
 *.log
 *.env
 *.DS_Store
+*.wav
+*.mp3
+
+test*
 
 .wav
 transcripts
 saved_scripts
 narrated_podcasts
 narrated_podcasts_bark
+mistral_hindi_hinglish_test
+

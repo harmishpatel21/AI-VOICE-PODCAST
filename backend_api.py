@@ -154,6 +154,7 @@ def get_transcript(video_id: str = Query(...)):
                             "is_generated": getattr(t, 'is_generated', False),
                             "error": None
                         }
+                        # If not English, just save the transcript as-is; transliteration is handled by a separate script
                         with open(transcript_path, 'w', encoding='utf-8') as f:
                             json.dump(data, f, ensure_ascii=False, indent=2)
                         return TranscriptResponse(**data)
