@@ -5,6 +5,7 @@ import logging
 import requests
 import time
 from config import settings
+from backend.core.prompt_utility import get_transliteration_prompt
 
 def chunk_text(text, max_words=500):
     words = text.split()
@@ -52,10 +53,7 @@ def transliterate_file(json_path):
     transliterated_chunks = []
     for idx, chunk in enumerate(chunks):
         logger.info(f"Processing chunk {idx+1}/{len(chunks)}")
-        prompt = (
-            "You are a strict transliteration engine. Your ONLY job is to convert every Hindi word in the following text from Devanagari script to Latin script (Hinglish). Do NOT summarize, translate, paraphrase, or add/remove any words, punctuation, or lines. Do NOT output any Hindi/Devanagari script or explanation. Output must be the same length and structure as the input, but with all Hindi words in Latin script. Output ONLY the transliterated text, nothing else. If you see any non-Hindi text, leave it unchanged. Here is the text (UTF-8 encoded):\n\n"
-            f"{chunk}"
-        )
+        prompt = get_transliteration_prompt(chunk)
         response = requests.post(
             OLLAMA_URL,
             json={

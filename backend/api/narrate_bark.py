@@ -10,6 +10,7 @@ import torch
 from bark import SAMPLE_RATE, generate_audio
 import numpy as np
 from config import settings
+from backend.core.prompt_utility import get_bark_narration_prompt
 
 router = APIRouter()
 
