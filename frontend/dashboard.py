@@ -4,8 +4,9 @@ import re
 import os
 import pathlib
 import json
+from config import settings
 
-API_BASE = "http://localhost:8000/api"
+API_BASE = settings.API_BASE
 
 st.title("YouTube Podcast Transcript Studio")
 
@@ -108,7 +109,7 @@ if page == "Create Podcast Script":
 # --- Listen to Saved Podcast Page ---
 if page == "Listen to Saved Podcast":
     st.header("Listen to Saved Podcast Audio or Narrate Again")
-    base_dir = pathlib.Path("saved_scripts")
+    base_dir = pathlib.Path(settings.SAVED_SCRIPTS_DIR)
     if not base_dir.exists():
         st.info("No saved podcast scripts found.")
     else:

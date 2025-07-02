@@ -10,11 +10,11 @@ import logging
 import os
 import json
 import pathlib
-from api_transcript_listing import router as transcript_listing_router
-from api_llm_generate import router as llm_generate_router
-from api_narrate_script import router as narrate_script_router
-from api_narrate_script_bark import router as narrate_script_bark_router
-
+from backend.api.transcript_listing import router as transcript_listing_router
+from backend.api.llm_generate import router as llm_generate_router
+from backend.api.narrate_elevenlabs import router as narrate_script_router
+from backend.api.narrate_bark import router as narrate_script_bark_router
+from config import settings
 
 app = FastAPI()
 
@@ -24,7 +24,7 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s %(name)s %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler("backend_api.log", encoding="utf-8")
+        logging.FileHandler(settings.BACKEND_LOG_FILE, encoding="utf-8")
     ]
 )
 logger = logging.getLogger("backend_api")
@@ -68,6 +68,7 @@ def get_channel_video_ids(youtuber: str = Query(...), num_videos: int = Query(3)
         video_ids = [
             e['id'] for e in entries
             if 'id' in e and isinstance(e['id'], str) and len(e['id']) == 11
+            # and e.get('availability') in ['public', 'unlisted']
             and (
                 ('url' in e and '/shorts/' not in str(e['url']))
                 or ('url' not in e and '_type' in e and e['_type'] == 'url')  # fallback for some playlist entries
@@ -84,7 +85,7 @@ def get_transcript(video_id: str = Query(...)):
     video_url = f"https://youtu.be/{video_id}"
     logger.info(f"Fetching transcript for video_id: {video_id}")
     # Try to load from local cache first
-    transcript_dir = pathlib.Path("transcripts")
+    transcript_dir = pathlib.Path(settings.TRANSCRIPTS_DIR)
     transcript_dir.mkdir(exist_ok=True)
     meta_info = None
     # Try to get channel name and video title using yt-dlp

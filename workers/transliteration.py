@@ -4,6 +4,7 @@ import pathlib
 import logging
 import requests
 import time
+from config import settings
 
 def chunk_text(text, max_words=500):
     words = text.split()
@@ -14,15 +15,15 @@ def contains_devanagari(text):
     import re
     return bool(re.search(r'[\u0900-\u097F]', text))
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-TRANSCRIPTS_DIR = pathlib.Path("transcripts")
+OLLAMA_URL = settings.OLLAMA_URL
+TRANSCRIPTS_DIR = pathlib.Path(settings.TRANSCRIPTS_DIR)
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s %(levelname)s %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler("transliteration_worker.log", encoding="utf-8")
+        logging.FileHandler(settings.TRANSLITERATION_LOG_FILE, encoding="utf-8")
     ]
 )
 logger = logging.getLogger("transliteration_worker")
@@ -91,8 +92,9 @@ def scan_and_transliterate():
                 logger.error(f"Error processing {json_file}: {e}")
 
 if __name__ == "__main__":
-    while True:
-        logger.info("Scanning for Hindi transcripts to transliterate...")
-        scan_and_transliterate()
-        logger.info("Sleeping for 60 seconds...")
-        time.sleep(60)
+    # while True:
+    logger.info("Scanning for Hindi transcripts to transliterate...")
+    scan_and_transliterate()
+    logger.info("Transliteration complete")
+    # logger.info("Sleeping for 60 seconds...")
+    # time.sleep(60)

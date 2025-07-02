@@ -5,15 +5,15 @@ __pycache__
 *.pyd
 *.db
 *.sqlite3
-*.log
-*.env
-*.DS_Store
+
+# Logs
+logs/
+
+# Data directories
+data/
+
+.env 
 *.wav
-*.mp3
-
-test*
-
-.wav
 transcripts
 saved_scripts
 narrated_podcasts
