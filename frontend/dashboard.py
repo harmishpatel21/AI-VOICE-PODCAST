@@ -2,8 +2,13 @@ import streamlit as st
 import requests
 import re
 import os
+import sys
 import pathlib
 import json
+
+# Add the project root to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from config import settings
 
 API_BASE = settings.API_BASE
