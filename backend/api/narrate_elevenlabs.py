@@ -10,6 +10,7 @@ import tempfile
 import logging
 import re
 from config import settings
+from backend.core.prompt_utility import get_elevenlabs_narration_prompt
 
 router = APIRouter()
 
@@ -59,6 +60,7 @@ def narrate_script(req: NarrateScriptRequest):
         headers = {"xi-api-key": ELEVENLABS_API_KEY}
         # Remove expressions in square brackets from text
         text_clean = re.sub(r"\[[^\]]*\]", "", text).strip()
+        # text_clean = get_elevenlabs_narration_prompt(text_clean)
         payload = {
             "text": text_clean,
             "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}
