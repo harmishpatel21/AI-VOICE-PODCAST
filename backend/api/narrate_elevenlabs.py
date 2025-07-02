@@ -9,14 +9,15 @@ from pydub import AudioSegment
 import tempfile
 import logging
 import re
+from config import settings
 
 router = APIRouter()
 
 # Load ElevenLabs API key and voice ID from .env
-load_dotenv()
-ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
-ELEVENLABS_VOICE_ID1 = os.getenv("ELEVENLABS_VOICE_ID1")
-ELEVENLABS_VOICE_ID2 = os.getenv("ELEVENLABS_VOICE_ID2")
+# These are now loaded via config/settings.py
+ELEVENLABS_API_KEY = settings.ELEVENLABS_API_KEY
+ELEVENLABS_VOICE_ID1 = settings.ELEVENLABS_VOICE_ID1
+ELEVENLABS_VOICE_ID2 = settings.ELEVENLABS_VOICE_ID2
 
 logger = logging.getLogger("narrate_script_api")
 
@@ -112,7 +113,7 @@ def narrate_script(req: NarrateScriptRequest):
         if not timestamp:
             import time
             timestamp = time.strftime("%Y%m%d_%H%M%S")
-        topic_dir = pathlib.Path("narrated_podcasts") / sanitize_filename(str(topic))
+        topic_dir = pathlib.Path(settings.NARRATED_PODCASTS_DIR) / sanitize_filename(str(topic))
         topic_dir.mkdir(parents=True, exist_ok=True)
         # Add topic to filename as well
         filename = f"{sanitize_filename(str(topic))}_{sanitize_filename(req.char1)}_{sanitize_filename(req.char2)}_{length_minutes}min_{timestamp}.{req.output_format}"

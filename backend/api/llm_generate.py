@@ -7,10 +7,11 @@ import requests
 import logging
 import time
 import re
+from config import settings
 
 router = APIRouter()
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_URL = settings.OLLAMA_URL
 
 class PodcastScriptRequest(BaseModel):
     char1: str
@@ -33,7 +34,7 @@ def generate_podcast_script(req: PodcastScriptRequest):
     logger.info(f"Received request: char1={req.char1}, char2={req.char2}, topic={req.topic}, model={req.model}, length={req.length_minutes}")
     # Load transcript samples for each character
     def get_samples(youtuber, n):
-        transcript_dir = pathlib.Path("transcripts") / youtuber
+        transcript_dir = pathlib.Path(settings.TRANSCRIPTS_DIR) / youtuber
         all_files = list(transcript_dir.glob("*.json"))
         if not all_files:
             logger.warning(f"No transcripts found for youtuber: {youtuber}")
@@ -102,7 +103,7 @@ Write the entire script in {script_language}. If {script_language} is Hinglish, 
             script = result.get("response", "")
             logger.info(f"LLM script generation successful for topic '{req.topic}'")
             # Save the script
-            save_dir = pathlib.Path("saved_scripts") / sanitize_filename(req.topic)
+            save_dir = pathlib.Path(settings.SAVED_SCRIPTS_DIR) / sanitize_filename(req.topic)
             save_dir.mkdir(parents=True, exist_ok=True)
             timestamp = time.strftime("%Y%m%d_%H%M%S")
             filename = f"{sanitize_filename(req.char1)}_{sanitize_filename(req.char2)}_{req.length_minutes}min_{timestamp}.json"

@@ -9,6 +9,7 @@ import logging
 import torch
 from bark import SAMPLE_RATE, generate_audio
 import numpy as np
+from config import settings
 
 router = APIRouter()
 
@@ -96,7 +97,7 @@ def narrate_script_bark(req: NarrateScriptBarkRequest):
         def sanitize_filename(filename):
             return "".join(c if c.isalnum() or c in (" ", "-", "_") else "_" for c in filename).strip()
         topic_safe = sanitize_filename(str(req.topic))
-        topic_dir = pathlib.Path("narrated_podcasts_bark") / topic_safe
+        topic_dir = pathlib.Path(settings.NARRATED_PODCASTS_BARK_DIR) / topic_safe
         topic_dir.mkdir(parents=True, exist_ok=True)
         import time
         timestamp = time.strftime("%Y%m%d_%H%M%S")
